@@ -43,3 +43,5 @@ function ordinal_suffix_of(i) {
 }
 
 console.log(`The ${ordinal_suffix_of(sorted[0].number)} elf got ${sorted[0].total} calories`);
+
+console.log(`The sum calories of first three elvies are ${sorted[0].total+sorted[1].total+sorted[2].total} calories`);
