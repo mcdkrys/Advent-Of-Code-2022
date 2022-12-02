@@ -1,21 +1,3 @@
-/*
-A for Rock
-B for Paper
-C for Scissors
-
-X for Rock
-Y for Paper
-Z for Scissors
-
-Rock is 1 score
-Paper is 2 score
-Scissors is 3 score
-
-Won -> 6
-Draw -> 3
-Lose -> 0
-*/
-
 const fs = require("fs");
 
 const file = fs.readFileSync("./day2/file.txt", "utf-8").split("\r\n");
@@ -54,13 +36,13 @@ file.forEach((item) => {
 
     switch (items[1]) {
       case "X":
-        count += getScore(whoLoseLetter(items[0]))
+        count += getScore(whoBeatLetter(items[0]))
         break;
       case "Y":
         count += count += getScore(items[0]) + 3;
         break;
       case "Z":
-        count += getScore(whoBeatLetter(items[0])) + 6;
+        count += getScore(whoLoseLetter(items[0])) + 6;
         break;
       default:
         count += 0;
