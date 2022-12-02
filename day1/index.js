@@ -1,25 +1,25 @@
 const fs = require("fs");
 
-const file = fs.readFileSync("./index.txt", "utf-8").split("\r\n");
+const file = fs.readFileSync("./day1/file.txt", "utf-8").split("\r\n");
 
-var elvies = {};
+var elves = {};
 var x = 0;
 
 file.forEach((item, index) => {
   if (item == "") x++;
   else {
-    if (!elvies[x])
-      elvies[x] = {
+    if (!elves[x])
+      elves[x] = {
         number: x+1,
         calories: new Array(),
         total: 0,
       };
-    elvies[x].calories.push(item);
-    elvies[x].total += parseInt(item);
+    elves[x].calories.push(item);
+    elves[x].total += parseInt(item);
   }
 });
 
-const sorted = Object.entries(elvies)
+const sorted = Object.entries(elves)
   .sort(([, a], [, b]) => {
     return b.total - a.total;
   })
@@ -44,4 +44,4 @@ function ordinal_suffix_of(i) {
 
 console.log(`The ${ordinal_suffix_of(sorted[0].number)} elf got ${sorted[0].total} calories`);
 
-console.log(`The sum calories of first three elvies are ${sorted[0].total+sorted[1].total+sorted[2].total} calories`);
+console.log(`The sum calories of first three elves are ${sorted[0].total+sorted[1].total+sorted[2].total} calories`);
