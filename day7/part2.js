@@ -68,12 +68,11 @@ const file = fs
     }
 });
 
-var answer = 0;
+let total = firstDirectory.getFilesize();
+var neededSpace =  total - 40000000;
 
-directories.forEach(item=> {
-    console.log(item.path,item.getFilesize())
-    if(item.getFilesize()<=100000) answer+=item.getFilesize();
-})
+let sort = directories.map(val=>val.getFilesize()).sort((b,a)=> b - a)
 
-console.log(answer)
+let anwser = sort.filter(val => val>neededSpace)[0];
 
+console.log(anwser)
