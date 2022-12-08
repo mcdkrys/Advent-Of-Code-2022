@@ -23,6 +23,16 @@ class Tree {
         };;
     }
 
+    getScore() {
+        let topVisibility = this.checkScore("Top")
+        let leftVisibility = this.checkScore("Left")
+        let bottomVisibility = this.checkScore("Bottom")
+        let rightVisibility =   this.checkScore("Right")
+        
+        
+        return topVisibility*leftVisibility*bottomVisibility*rightVisibility
+    }
+
     checkVisible() {
         let topVisibility = this.checkVisibility("Top")
         let leftVisibility = this.checkVisibility("Left")
@@ -43,6 +53,21 @@ class Tree {
             
         }
         return false;
+    }
+
+    checkScore(direction) {
+        var count=1;
+        if(!this.Directions[direction]) return true
+        var tree=this.Directions[direction].tree;
+
+        while(this.Height>tree.Height) {
+            if(!tree.Directions[direction]) return count;
+            tree=tree.Directions[direction].tree;
+            count++;
+            
+        }
+
+        return count;
     }
 }
 
@@ -69,4 +94,5 @@ function directionToString(direction) {
     }
 }
 
-console.log(Trees.map(tree=>tree.checkVisible() ? 1 : 0).reduce((a,b)=>a+b))
+
+console.log(Math.max.apply(null,Trees.map(tree=>tree.getScore())))
