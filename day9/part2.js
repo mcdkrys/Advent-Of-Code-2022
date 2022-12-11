@@ -1,26 +1,29 @@
 const fs = require("fs");
 
 class Position {
-  x=0;
-  y=0;
+  x = 0;
+  y = 0;
 
-  constructor () {
-  }
+  constructor() {}
 
-  set(x,y) {
+  set(x, y) {
     this.x = x;
     this.y = y;
   }
 
-  add(x,y) {
+  add(x, y) {
     this.x += x;
     this.y += y;
+  }
+
+  diff(position) {
+    return [this.x-position.x,this.y-position.y]
   }
 }
 
 class Mark {
   name;
-  oldPosition = new Position()
+  oldPosition = new Position();
   position = new Position();
   /**
    * @type {Mark}
@@ -30,79 +33,86 @@ class Mark {
 
   constructor(name, x, y, follower) {
     this.name = name;
-    this.addVisit(x,y)
-    this.position.set(x,y)
+    this.setPosition(x,y);
     this.follower = follower;
   }
 
   moveStep(direction, step) {
     while (step > 0) {
-      this.oldPosition.set(this.position.x,this.position.y)
-      switch (direction) {
-        case "U":
-          this.addPosition(0,-1);
-          break;
-        case "R":
-          this.addPosition(1,0);
-          break;
-        case "D":
-          this.addPosition(0,1);
-          break;
-        case "L":
-          this.addPosition(-1,0);
-          break;
-      }
-      this.moveFollower(this.oldPosition.x,this.oldPosition.y)
+      this.oldPosition.set(this.position.x, this.position.y);
+      if(direction=='U') this.addPosition(0, -1);
+      else if(direction=='R') this.addPosition(1, 0);
+      else if(direction=='D') this.addPosition(0, 1);
+      else if(direction=='L') this.addPosition(-1, 0);
+      else if(direction=='UR') this.addPosition(1, -1);
+      else if(direction=='UL') this.addPosition(-1, -1);
+      else if(direction=='DR') this.addPosition(1, 1);
+      else if(direction=='DL') this.addPosition(-1, 1);
+
       step--;
     }
   }
-
-  addPosition(x,y) {
-    this.oldPosition.set(this.position.x,this.position.y)
-    this.position.add(x,y)
-    this.addVisit(this.position.x,this.position.y)
-    this.moveFollower(this.oldPosition.x,this.oldPosition.y)
-  }
-
-  setPosition(x,y) {
-    this.oldPosition.set(this.position.x,this.position.y)
-    this.position.set(x,y)
-    this.addVisit(x,y)
-    this.moveFollower(this.oldPosition.x,this.oldPosition.y)
-  }
-  
 
   addVisit(x,y) {
     if(this.visitedPositions.find(a=>a[0] == x && a[1] == y)) return;
     this.visitedPositions.push([x,y])
   }
 
-  moveFollower(x,y) {
+  addPosition(x,y) {
+    this.oldPosition.set(this.position.x,this.position.y);
+    this.position.add(x,y);
+    this.addVisit(this.position.x,this.position.y);
     if(!this.follower) return;
-    if(this.checkFollowerArea() == "Outside") this.follower.addPosition(this.position.x-x,this.position.y-y)
-    else if(this.checkFollowerArea() == "Outside_Cross") this.follower.addPosition(this.position.x-x,this.position.y-y)
+    let dif = this.position.diff(this.follower.position)
+    console.log(dif)
+    this.checkMove(2,0,"R")
+    this.checkMove(-2,0,"L")
+    this.checkMove(2,0,"R")
+    this.checkMove(2,0,"R")
+    var direction="";
+    if(dif[0]==2)
+    if(dif[0]==2 && dif[1]==0) this.follower.moveStep("R",1);
+    else if(dif[0]==0 && dif[1]==2) this.follower.moveStep("D",1);
+    else if(dif[0]==-2 && dif[1]==0) this.follower.moveStep("L",1);
+    else if(dif[0]==0 && dif[1]==-2) this.follower.moveStep("U",1);
+
+    else if(dif[0]==1 && dif[1]==2) this.follower.moveStep("U",1);
+    else if(dif[0]==1 && dif[1]==-2) this.follower.moveStep("D",1);
+
+    else if(dif[0]==-1 && dif[1]==2) this.follower.moveStep("U",1);
+    else if(dif[0]=-1 && dif[1]==-2) this.follower.moveStep("D",1);
+
+    else if(dif[0]==2 && dif[1]==-1) this.follower.moveStep("R",1);
+    else if(dif[0]=-2 && dif[1]==1) this.follower.moveStep("L",1);
+
+    else if(dif[0]==-2 && dif[1]==-1) this.follower.moveStep("L",1);
+    else if(dif[0]=-2 && dif[1]==1) this.follower.moveStep("R",1);
+
+    else if(dif[0]==2 && dif[1]==2) this.follower.moveStep("DR",1);
+    else if(dif[0]=2 && dif[1]==-2) this.follower.moveStep("UR",1);
+    else if(dif[0]==-2 && dif[1]==2) this.follower.moveStep("DL",1);
+    else if(dif[0]=-2 && dif[1]==-2) this.follower.moveStep("UL",1);
   }
 
-  checkFollowerOutArea() {
-    if(!this.follower) return;
+  checkMove(x,y,direction) {
+    let dif = this.position.diff(this.follower.position)
+    if (dif[0]==x && dif[1]==y) this.follower.moveStep(direction,1);
+  }
+  setPosition(x,y) {
+    this.oldPosition.set(this.position.x,this.position.y);
+    this.position.set(x,y);
+    this.addVisit(x,y);
+  }
+
+
+  checkFollowerInArea() {
+    if (this.follower) return false;
     return (
-      this.follower.position.x < this.position.x - 1 ||
-      this.follower.position.x > this.position.x + 1 ||
-      this.follower.position.y < this.position.y - 1 ||
-      this.follower.position.y > this.position.y + 1
+      this.follower.position.x >= this.position.x - 1 &&
+      this.follower.position.x <= this.position.x + 1 &&
+      this.follower.position.y >= this.position.y - 1 &&
+      this.follower.position.y <= this.position.y + 1
     );
-  }
-
-  checkFollowerArea(range) {
-    if(!this.follower) return;
-    let dx = this.position.x-this.follower.position.x;
-    let dy = this.position.y-this.follower.position.y;
-    let fx = this.follower.position.x >= this.position.x - 1 && this.follower.position.x <= this.position.x + 1
-    let fy = this.follower.position.y >= this.position.y - 1 && this.follower.position.y <= this.position.y + 1
-    if(!fx || !fy) {
-      return (dx>=1&&dy>=1) ? "Outside_Cross" : "Outside"
-    }
-    else return "Inside"
   }
 }
 
@@ -118,39 +128,48 @@ const T2 = new Mark("2", 0, 0, T3);
 const T1 = new Mark("1", 0, 0, T2);
 const H = new Mark("H", 0, 0, T1);
 
-
 const file = fs
   .readFileSync("./day9/input.txt", "utf-8")
   .split("\r\n")
   .forEach((line) => {
     let direction = line.split(" ")[0];
     let step = parseInt(line.split(" ")[1]);
-    H.moveStep(direction,step);
-});
+    H.moveStep(direction, step);
+  });
 
 function* range(start, stop, step = 1) {
   if (stop == null) {
-      // one param defined
-      stop = start;
-      start = 0;
+    // one param defined
+    stop = start;
+    start = 0;
   }
 
   for (let i = start; step > 0 ? i < stop : i > stop; i += step) {
-      yield i;
+    yield i;
   }
 }
 
+var text = "";
 
-  var text=""
-  var check=false;
-
-  for (let y = -12; y < 20; y++) {
-    text += "\n"
-    for (let x = -12; x < 20; x++) {
-      if(T1.visitedPositions.find(val => val[0] == x && val[1] == y)) text+="#"
-      else
-      text += "."
-    }
+for (let y = -12; y < 20; y++) {
+  text += "\n";
+  for (let x = -12; x < 20; x++) {
+    if (H.visitedPositions.find((val) => val[0] == x && val[1] == y))
+      text += "#";
+    else text += ".";
   }
-  console.log(text)
+}
 
+var text2 = "";
+
+for (let y = -12; y < 20; y++) {
+  text2 += "\n";
+  for (let x = -12; x < 20; x++) {
+    if (T1.visitedPositions.find((val) => val[0] == x && val[1] == y))
+      text2 += "#";
+    else text2 += ".";
+  }
+}
+
+console.log(text);
+console.log(text2);
